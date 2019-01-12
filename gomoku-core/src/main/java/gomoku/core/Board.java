@@ -12,7 +12,7 @@ public class Board {
     public static final char P2 = 'o';
     public static final char EMPTY = '.';
 
-    private Set<Integer> moves = new HashSet<>();
+    private Set<Integer> moves = new HashSet<>(100);
     private final char[][] board = new char[N][N];
     final int width = N;
     final int height = N;
@@ -48,6 +48,7 @@ public class Board {
         setValue(x, y, player);
         findWinner(x, y);
         findMoves(x, y);
+        moves.remove(move);
     }
 
     public int move(int x, int y) {
@@ -116,8 +117,6 @@ public class Board {
                 int move = move(x, y);
                 if (this.board[x][y] == EMPTY) {
                     this.moves.add(move);
-                } else {
-                    this.moves.remove(move);
                 }
             }
         }
