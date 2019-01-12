@@ -19,6 +19,10 @@ public class Board {
     final int winSize = M;
     private Win win;
 
+    protected long findMovesTime = 0;
+    protected long findWinTime = 0;
+    protected long playoutTime = 0;
+
     public static char nextPlayer(char player) {
         return player == P1 ? P2 : P1;
     }
@@ -81,16 +85,19 @@ public class Board {
 
 
     public Win randomPlayout(char player) {
+        long start = System.nanoTime();
         while (!this.moves.isEmpty()) {
             int moveIndex = (int) (Math.random() * moves.size());
             int move = getMove(moveIndex);
             makeMove(move, player);
             if (win != null) {
-                return win;
+                break;
             } else {
                 player = Board.nextPlayer(player);
             }
         }
+        long end = System.nanoTime();
+        playoutTime += (end - start);
         return win;
     }
 
@@ -98,6 +105,7 @@ public class Board {
 
 
     private void findMoves(int cx, int cy) {
+        long start = System.nanoTime();
         int rad = 2;
         int x1 = Math.max(0, cx - rad);
         int y1 = Math.max(0, cy - rad);
@@ -113,9 +121,12 @@ public class Board {
                 }
             }
         }
+        long end = System.nanoTime();
+        findMovesTime += (end - start);
     }
 
     private void findWinner(int x, int y) {
+        long start = System.nanoTime();
         win = this.checkCell(x, y, -1, 0, 1, 0);
         if (win == null) {
             win = this.checkCell(x, y, 0, -1, 0, 1);
@@ -126,6 +137,8 @@ public class Board {
         if (win == null) {
             win = this.checkCell(x, y, -1, -1, 1, 1);
         }
+        long end = System.nanoTime();
+        findWinTime += (end - start);
     }
 
     private Win checkCell(int x, int y, int dx1, int dy1, int dx2, int dy2) {

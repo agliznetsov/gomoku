@@ -5,7 +5,7 @@ import org.junit.Test;
 
 @Slf4j
 public class BoardTest {
-    //15K playouts per second
+    //14K playouts per second
     @Test
     public void randomPlayout() {
         int p1 = 0;
@@ -29,5 +29,6 @@ public class BoardTest {
         }
         long end = System.currentTimeMillis();
         log.info("P1:  {} P2: {} Draw {} Playout per second: {}", p1, p2, draw, N * 1000 / (end - start));
+        log.info("FindWin: {}%, FindMoves: {}%", board.findWinTime * 100 / board.playoutTime, board.findMovesTime * 100 / board.playoutTime);
     }
 }
