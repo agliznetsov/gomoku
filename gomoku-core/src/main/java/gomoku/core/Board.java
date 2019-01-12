@@ -114,9 +114,8 @@ public class Board {
         int y2 = Math.min(this.height - 1, cy + rad);
         for (int x = x1; x <= x2; x++) {
             for (int y = y1; y <= y2; y++) {
-                int move = move(x, y);
                 if (this.board[x][y] == EMPTY) {
-                    this.moves.add(move);
+                    this.moves.add(move(x, y));
                 }
             }
         }
