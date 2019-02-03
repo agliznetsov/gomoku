@@ -1,55 +1,55 @@
 package gomoku.core;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class Board {
+    private static final int SIZE = 15;
+    private static final int WIN_SIZE = 5;
+    
     public static final char P1 = 'x';
     public static final char P2 = 'o';
     public static final char EMPTY = '.';
 
     private char currentPlayer;
 //    private Set<Integer> moves = new HashSet<>(100);
-    private final char[][] board;
-    private final int size;
-    private final int winSize;
+    private final char[][] cells;
     private Win win;
 
-    protected long findMovesTime = 0;
-    protected long findWinTime = 0;
-    protected long playoutTime = 0;
+//    protected long findMovesTime = 0;
+//    protected long findWinTime = 0;
+//    protected long playoutTime = 0;
 
     public static char nextPlayer(char player) {
         return player == P1 ? P2 : P1;
     }
 
     public Board() {
-        this(15, 5);
-    }
-
-    public Board(int size, int winSize) {
-        this.board = new char[size][size];
-        this.size = size;
-        this.winSize = winSize;
+        this.cells = new char[SIZE][SIZE];
         clear();
+    }
+    
+    public Board(Board board) {
+        this.cells = board.cells.clone();
     }
 
     public int getSize() {
-        return size;
+        return SIZE;
     }
 
     public int getWinSize() {
-        return winSize;
+        return WIN_SIZE;
     }
 
     public Win getWin() {
         return win;
     }
 
+    public char getCurrentPlayer() {
+        return currentPlayer;
+    }
+
     public void clear() {
-        for (int x = 0; x < size; x++) {
-            for (int y = 0; y < size; y++) {
-                board[x][y] = EMPTY;
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                cells[x][y] = EMPTY;
             }
         }
 //        moves.clear();
@@ -59,7 +59,7 @@ public class Board {
     }
 
     public boolean isValidMove(int x, int y) {
-        return win == null && x >= 0 && x < size && y >= 0 && y < size && board[x][y] == EMPTY;
+        return win == null && x >= 0 && x < SIZE && y >= 0 && y < SIZE && cells[x][y] == EMPTY;
     }
 
     public boolean makeMove(int x, int y) {
@@ -73,8 +73,8 @@ public class Board {
     }
 
 //    public void makeMove(int move, char player) {
-//        int x = move % this.size;
-//        int y = move / this.size;
+//        int x = move % SIZE;
+//        int y = move / SIZE;
 //        setValue(x, y, player);
 //        currentPlayer = nextPlayer(currentPlayer);
 //        findWinner(x, y);
@@ -83,7 +83,7 @@ public class Board {
 //    }
 
 //    public int move(int x, int y) {
-//        return y * size + x;
+//        return y * SIZE + x;
 //    }
 
     public void clearValue(int x, int y) {
@@ -92,12 +92,12 @@ public class Board {
 
     //return value at position (x,y)
     public char getValue(int x, int y) {
-        return board[x][y];
+        return cells[x][y];
     }
 
     //put X or O at clear the cell at position (x,y)
     public void setValue(int x, int y, char player) {
-        board[x][y] = player;
+        cells[x][y] = player;
     }
 
 //    public Set<Integer> getMoves() {
@@ -106,8 +106,8 @@ public class Board {
 
     public String print() {
         StringBuilder sb = new StringBuilder();
-        for (int x = 0; x < size; x++) {
-            for (int y = 0; y < size; y++) {
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
                 sb.append(getValue(x, y));
             }
             sb.append('\n');
@@ -119,7 +119,7 @@ public class Board {
 //    public Win randomPlayout(char player) {
 //        long start = System.nanoTime();
 //        while (!this.moves.isEmpty()) {
-//            int moveIndex = (int) (Math.random() * moves.size());
+//            int moveIndex = (int) (Math.random() * moves.SIZE());
 //            int move = getMove(moveIndex);
 //            makeMove(move, player);
 //            if (win != null) {
@@ -141,11 +141,11 @@ public class Board {
 //        int rad = 2;
 //        int x1 = Math.max(0, cx - rad);
 //        int y1 = Math.max(0, cy - rad);
-//        int x2 = Math.min(this.size - 1, cx + rad);
-//        int y2 = Math.min(this.size - 1, cy + rad);
+//        int x2 = Math.min(SIZE - 1, cx + rad);
+//        int y2 = Math.min(SIZE - 1, cy + rad);
 //        for (int x = x1; x <= x2; x++) {
 //            for (int y = y1; y <= y2; y++) {
-//                if (this.board[x][y] == EMPTY) {
+//                if (this.cells[x][y] == EMPTY) {
 //                    this.moves.add(move(x, y));
 //                }
 //            }
@@ -155,7 +155,7 @@ public class Board {
 //    }
 
     private void findWinner(int x, int y) {
-        long start = System.nanoTime();
+//        long start = System.nanoTime();
         win = this.checkCell(x, y, -1, 0, 1, 0);
         if (win == null) {
             win = this.checkCell(x, y, 0, -1, 0, 1);
@@ -167,7 +167,7 @@ public class Board {
             win = this.checkCell(x, y, -1, -1, 1, 1);
         }
         long end = System.nanoTime();
-        findWinTime += (end - start);
+//        findWinTime += (end - start);
     }
 
     private Win checkCell(int x, int y, int dx1, int dy1, int dx2, int dy2) {
@@ -176,14 +176,14 @@ public class Board {
             throw new IllegalStateException("Empty cell at " + x + "," + y);
         }
         int length = 0;
-        int minX = size;
-        int minY = size;
+        int minX = SIZE;
+        int minY = SIZE;
         int maxX = 0;
         int maxY = 0;
         {
             int tx = x;
             int ty = y;
-            while (tx >= 0 && tx < this.size && ty >= 0 && ty < this.size) {
+            while (tx >= 0 && tx < SIZE && ty >= 0 && ty < SIZE) {
                 if (this.getValue(tx, ty) == player) {
                     length++;
                     minX = Math.min(minX, tx);
@@ -200,7 +200,7 @@ public class Board {
         {
             int tx = x + dx2;
             int ty = y + dy2;
-            while (tx >= 0 && tx < this.size && ty >= 0 && ty < this.size) {
+            while (tx >= 0 && tx < SIZE && ty >= 0 && ty < SIZE) {
                 if (this.getValue(tx, ty) == player) {
                     length++;
                     minX = Math.min(minX, tx);
@@ -214,7 +214,7 @@ public class Board {
                 ty += dy2;
             }
         }
-        if (length >= this.winSize) {
+        if (length >= WIN_SIZE) {
             return new Win(player, minX, minY, maxX, maxY);
         } else {
             return null;
