@@ -11,5 +11,12 @@
 
     <artifactId>gomoku-ui</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>agi</groupId>
+            <artifactId>gomoku-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
