@@ -1,21 +1,16 @@
 package gomoku.core;
 
 public class Board {
-    private static final int SIZE = 15;
-    private static final int WIN_SIZE = 5;
-    
+    public static final int SIZE = 15;
+    public static final int WIN_SIZE = 5;
+
     public static final char P1 = 'x';
     public static final char P2 = 'o';
     public static final char EMPTY = '.';
 
     private char currentPlayer;
-//    private Set<Integer> moves = new HashSet<>(100);
     private final char[][] cells;
     private Win win;
-
-//    protected long findMovesTime = 0;
-//    protected long findWinTime = 0;
-//    protected long playoutTime = 0;
 
     public static char nextPlayer(char player) {
         return player == P1 ? P2 : P1;
@@ -25,17 +20,13 @@ public class Board {
         this.cells = new char[SIZE][SIZE];
         clear();
     }
-    
+
     public Board(Board board) {
         this.cells = board.cells.clone();
     }
 
     public int getSize() {
         return SIZE;
-    }
-
-    public int getWinSize() {
-        return WIN_SIZE;
     }
 
     public Win getWin() {
@@ -46,14 +37,16 @@ public class Board {
         return currentPlayer;
     }
 
+    public char[][] getCells() {
+        return cells;
+    }
+
     public void clear() {
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
                 cells[x][y] = EMPTY;
             }
         }
-//        moves.clear();
-//        moves.add(move(N / 2, N / 2));
         win = null;
         currentPlayer = P1;
     }
@@ -72,20 +65,6 @@ public class Board {
         return false;
     }
 
-//    public void makeMove(int move, char player) {
-//        int x = move % SIZE;
-//        int y = move / SIZE;
-//        setValue(x, y, player);
-//        currentPlayer = nextPlayer(currentPlayer);
-//        findWinner(x, y);
-////        findMoves(x, y);
-////        moves.remove(move);
-//    }
-
-//    public int move(int x, int y) {
-//        return y * SIZE + x;
-//    }
-
     public void clearValue(int x, int y) {
         setValue(x, y, EMPTY);
     }
@@ -100,10 +79,6 @@ public class Board {
         cells[x][y] = player;
     }
 
-//    public Set<Integer> getMoves() {
-//        return moves;
-//    }
-
     public String print() {
         StringBuilder sb = new StringBuilder();
         for (int x = 0; x < SIZE; x++) {
@@ -115,47 +90,7 @@ public class Board {
         return sb.toString();
     }
 
-
-//    public Win randomPlayout(char player) {
-//        long start = System.nanoTime();
-//        while (!this.moves.isEmpty()) {
-//            int moveIndex = (int) (Math.random() * moves.SIZE());
-//            int move = getMove(moveIndex);
-//            makeMove(move, player);
-//            if (win != null) {
-//                break;
-//            } else {
-//                player = Board.nextPlayer(player);
-//            }
-//        }
-//        long end = System.nanoTime();
-//        playoutTime += (end - start);
-//        return win;
-//    }
-
-    // ---------------------------- private -----------------------------------------
-
-
-//    private void findMoves(int cx, int cy) {
-//        long start = System.nanoTime();
-//        int rad = 2;
-//        int x1 = Math.max(0, cx - rad);
-//        int y1 = Math.max(0, cy - rad);
-//        int x2 = Math.min(SIZE - 1, cx + rad);
-//        int y2 = Math.min(SIZE - 1, cy + rad);
-//        for (int x = x1; x <= x2; x++) {
-//            for (int y = y1; y <= y2; y++) {
-//                if (this.cells[x][y] == EMPTY) {
-//                    this.moves.add(move(x, y));
-//                }
-//            }
-//        }
-//        long end = System.nanoTime();
-//        findMovesTime += (end - start);
-//    }
-
-    private void findWinner(int x, int y) {
-//        long start = System.nanoTime();
+    public Win findWinner(int x, int y) {
         win = this.checkCell(x, y, -1, 0, 1, 0);
         if (win == null) {
             win = this.checkCell(x, y, 0, -1, 0, 1);
@@ -166,9 +101,9 @@ public class Board {
         if (win == null) {
             win = this.checkCell(x, y, -1, -1, 1, 1);
         }
-        long end = System.nanoTime();
-//        findWinTime += (end - start);
+        return win;
     }
+
 
     private Win checkCell(int x, int y, int dx1, int dy1, int dx2, int dy2) {
         char player = this.getValue(x, y);
@@ -220,14 +155,5 @@ public class Board {
             return null;
         }
     }
-
-//    private int getMove(int moveIndex) {
-//        Iterator<Integer> it = moves.iterator();
-//        int move = -1;
-//        for (int x = 0; x <= moveIndex; x++) {
-//            move = it.next();
-//        }
-//        return move;
-//    }
 
 }
