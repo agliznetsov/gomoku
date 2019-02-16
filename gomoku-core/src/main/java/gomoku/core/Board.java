@@ -1,5 +1,10 @@
 package gomoku.core;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class Board {
     public static final int SIZE = 15;
     public static final int WIN_SIZE = 5;
@@ -11,6 +16,7 @@ public class Board {
     private char currentPlayer;
     private final char[][] cells;
     private Win win;
+    private Set<Integer> moves = new HashSet<>();
 
     public static char nextPlayer(char player) {
         return player == P1 ? P2 : P1;
@@ -23,6 +29,7 @@ public class Board {
 
     public Board(Board board) {
         this.cells = board.cells.clone();
+        this.moves = new HashSet<>(board.moves);
     }
 
     public int getSize() {
@@ -37,8 +44,8 @@ public class Board {
         return currentPlayer;
     }
 
-    public char[][] getCells() {
-        return cells;
+    public Set<Integer> getMoves() {
+        return moves;
     }
 
     public void clear() {
@@ -76,7 +83,13 @@ public class Board {
 
     //put X or O at clear the cell at position (x,y)
     public void setValue(int x, int y, char player) {
-        cells[x][y] = player;
+        if (player == P1 || player == P2) {
+            cells[x][y] = player;
+            findMoves(x, y);
+            moves.remove(move(x, y));
+        } else {
+            throw new IllegalArgumentException("player");
+        }
     }
 
     public String print() {
@@ -104,6 +117,23 @@ public class Board {
         return win;
     }
 
+    private void findMoves(int cx, int cy) {
+//        long start = System.nanoTime();
+        int rad = 2;
+        int x1 = Math.max(0, cx - rad);
+        int y1 = Math.max(0, cy - rad);
+        int x2 = Math.min(SIZE - 1, cx + rad);
+        int y2 = Math.min(SIZE - 1, cy + rad);
+        for (int x = x1; x <= x2; x++) {
+            for (int y = y1; y <= y2; y++) {
+                if (cells[x][y] == EMPTY) {
+                    moves.add(move(x, y));
+                }
+            }
+        }
+//        long end = System.nanoTime();
+//        findMovesTime += (end - start);
+    }
 
     private Win checkCell(int x, int y, int dx1, int dy1, int dx2, int dy2) {
         char player = this.getValue(x, y);
@@ -154,6 +184,11 @@ public class Board {
         } else {
             return null;
         }
+    }
+
+
+    public static int move(int x, int y) {
+        return y * SIZE + x;
     }
 
 }

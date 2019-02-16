@@ -1,10 +1,10 @@
 package gomoku.core;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import lombok.AllArgsConstructor;
 
-import static gomoku.core.Board.EMPTY;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static gomoku.core.Board.SIZE;
 
 public class MonteCarloAI {
@@ -21,7 +21,7 @@ public class MonteCarloAI {
         this.playCount = 0;
     }
 
-    void step() {
+    public void step() {
         board = new Board(originalBoard);
         Win win = selection();
         if (win != null) {
@@ -33,18 +33,14 @@ public class MonteCarloAI {
         // console.log("# cycle/sec: ", Math.round(1000 * node.playCount / (end - start)));
     }
 
-    Object getResult() {
-//        let res:any = {};
-//        let moves:any[];
-//        moves = _.map(node.children, (it:any) =>{
-//            return {move:it.move, value:it.playCount / playCount}
-//        });
+    public List<Move> getResult() {
+        List<Move> moves = node.children.stream().map(it -> new Move(it.move, (double)it.playCount / playCount)).collect(Collectors.toList());
 //        res.max = _.maxBy(moves, "value").value;
 //        res.mean = __.meanBy(moves, "value");
 //        res.confidence = (res.max - res.mean) / res.mean;
-//        res.moves = _.orderBy(moves, "value", "desc");
-//        return res;
-        return null;
+        Comparator<Move> comparator = Comparator.comparing(it -> it.value);
+        moves.sort(comparator.reversed());
+        return moves;
     }
 
     Win selection() {
@@ -68,18 +64,18 @@ public class MonteCarloAI {
 //                console.log("error");
             }
         }
-        if (node.move != null) {
+//        if (node.move != null) {
             if (node.win == null) {
                 node.win = findWinner(node.move);
             }
-        }
+//        }
         return node.win;
     }
 
     void expansion() {
         if (node.children == null) {
             node.children = new LinkedList<>();
-            Collection<Integer> moves = findMoves();
+            Collection<Integer> moves = board.getMoves();
             if (!moves.isEmpty()) {
                 char np = Board.nextPlayer(node.player);
                 for (Integer m : moves) {
@@ -134,11 +130,12 @@ public class MonteCarloAI {
 
     public Win randomPlayout(char player) {
 //        long start = System.nanoTime();
-        while (!moves.isEmpty()) {
-            int moveIndex = (int) (Math.random() * moves.SIZE());
-            int move = getMove(moveIndex);
+        while (!board.getMoves().isEmpty()) {
+            int moveIndex = (int) (Math.random() * board.getMoves().size());
+            int move = board.getMoves().stream().skip(moveIndex).findFirst().get();
             makeMove(move, player);
-            if (win != null) {
+            findWinner(move);
+            if (board.getWin() != null) {
                 break;
             } else {
                 player = Board.nextPlayer(player);
@@ -146,7 +143,7 @@ public class MonteCarloAI {
         }
 //        long end = System.nanoTime();
 //        playoutTime += (end - start);
-        return win;
+        return board.getWin();
     }
 
 
@@ -162,27 +159,19 @@ public class MonteCarloAI {
         return board.findWinner(x, y);
     }
 
-    Collection<Integer> findMoves() {
-//        long start = System.nanoTime();
-        int rad = 2;
-        int x1 = Math.max(0, cx - rad);
-        int y1 = Math.max(0, cy - rad);
-        int x2 = Math.min(SIZE - 1, cx + rad);
-        int y2 = Math.min(SIZE - 1, cy + rad);
-        for (int x = x1; x <= x2; x++) {
-            for (int y = y1; y <= y2; y++) {
-                if (cells[x][y] == EMPTY) {
-                    moves.add(move(x, y));
-                }
-            }
+
+    public static class Move {
+        public final int x;
+        public final int y;
+        public final double value;
+
+        private Move(int move, double value) {
+            this.x = move % SIZE;
+            this.y = move / SIZE;
+            this.value = value;
         }
-//        long end = System.nanoTime();
-//        findMovesTime += (end - start);
     }
 
-    int move(int x, int y) {
-        return y * SIZE + x;
-    }
 
     static class Node {
         Win win;
